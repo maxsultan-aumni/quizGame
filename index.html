@@ -271,7 +271,7 @@
                 D: './answers/question-3/D.html',
             }, correctChoice: 'A'},
             {
-                question: 'How much space is between the border box of the red square and the border box of the blue square?', 
+                question: 'How much space is between the red square and the blue square?', 
                 html: `
                     <div class="blue-square margin-bottom-8"></div>
                     <div class="margin-y-16">
@@ -302,7 +302,7 @@
                 correctChoice: 'A'
             },
             {
-                question: 'How much space is between the border box of the red square and the border box of the blue square?', 
+                question: 'How much space is between the red square and the blue square?',
                 html: `
                     <div class="blue-square margin-bottom-8"></div>
                     <div class="margin-y-16 padding-10">
@@ -330,37 +330,39 @@
                     C: './answers/question-5/C.html', 
                     D: './answers/question-5/D.html',
                 }, correctChoice: 'B'},
-            {question: 'Does adding the absolute class to #positionedBlock change its position?', html: `
-            <div class="containing-block">
-                <div id="positionedBlock" class="red-square left-100"></div>
-                <div class="square red positioned left-100"></div>
-            </div>
-            `, css: `
-            .blue-square {
-                width: 64px;
-                aspect-ratio: 1;
-                background-color: blue;
-            }
-            .red-square {
-                width: 64px;
-                aspect-ratio: 1;
-                background-color: red;
-            }
-            .containing-block {
-                padding-left: 100px;
-                position: relative;
-                z-index: 1;
-            }
-            .absolute {position: absolute;}
-            .left-100 {left: 100px;}
-
-            `, answerChoices: {
-                A: './answers/question-6/A.html', 
-                B: './answers/question-6/B.html', 
-                C: './answers/question-6/C.html', 
-                D: './answers/question-6/D.html',
-            }, correctChoice: 'C'},
-            {question: 'What is produced by this HTML and CSS?', html: `
+            {
+                question: 'Does adding the absolute class to #positionedBlock change its position?', 
+                html: `
+                    <div class="containing-block">
+                        <div id="positionedBlock" class="red-square left-100"></div>
+                        <div class="square red positioned left-100"></div>
+                    </div>
+                `, css: `
+                    .blue-square {
+                        width: 64px;
+                        aspect-ratio: 1;
+                        background-color: blue;
+                    }
+                    .red-square {
+                        width: 64px;
+                        aspect-ratio: 1;
+                        background-color: red;
+                    }
+                    .containing-block {
+                        padding-left: 100px;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .absolute {position: absolute;}
+                    .left-100 {left: 100px;}
+                `, answerChoices: {
+                    A: './answers/question-6/A.html', 
+                    B: './answers/question-6/B.html', 
+                    C: './answers/question-6/C.html', 
+                    D: './answers/question-6/D.html',
+                }, correctChoice: 'C'
+            },
+            {question: 'If the table in column 2 is too large to fit in the viewport what happens?', html: `
             <div class=”grid column-24px-1fr”>
                 <aside class=”width-24”></aside>
                 <table class=”overflow-auto”></table>
@@ -372,21 +374,11 @@
             .column-24px-1fr {
                 grid-template-columns: 24px 1fr 
             }
-            .aside{
+            .aside {
                 background-color: black;
             }
             .overflow-auto {
                 overflow: auto;
-            }
-            table {
-                border-collapse: collapse;
-            }
-            table, th, td {
-                border: 1px solid black;
-            }
-            th, td {
-                padding: 8px;
-                white-space: nowrap;
             }
             `, answerChoices: {
                 A: './answers/question-7/A.html', 
