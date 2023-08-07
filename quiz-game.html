@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz!</title>
+    <style>
+        html, body {
+            height: 100%;
+            background: linear-gradient(#fff 85%, lightgray);
+        }
+
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+            padding: 32px 64px;
+            background-color: skyblue;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.12), 
+              0 2px 2px rgba(0,0,0,0.12), 
+              0 4px 4px rgba(0,0,0,0.12), 
+              0 8px 8px rgba(0,0,0,0.12),
+              0 16px 16px rgba(0,0,0,0.12);
+              cursor: pointer;
+        }
+
+        button[disabled] {
+            cursor: not-allowed;
+        }
+
+        #start:active {
+            background-color: deepskyblue;
+        }
+
+        #game {
+            display: none;
+        }
+
+        .square {
+            width: 64px;
+            aspect-ratio: 1;
+            margin: 8px;
+        }
+
+        .red {
+            background-color: red;
+        }
+        .blue {
+            position: relative;
+            bottom: 64px;
+            background-color: blue;
+            z-index: 3;
+        }
+        .green {
+            position: relative;
+            bottom: 128px;
+            background-color: green;
+            z-index: 2;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+            gap: 32px;
+            padding: 32px;
+            max-width: 100%;
+        }
+        
+        .answer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .answer-button {
+            overflow-y: auto;
+            text-align: start;
+        }
+
+        #page {
+            height:100%;
+            width: 100%;
+            display:grid;
+            place-content: center;
+        }
+
+        #buttons{
+            display:none;
+            justify-content: space-around; 
+        }
+
+        #reportCard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            padding: 16px 32px;
+            border-radius: 8px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.12), 
+              0 2px 2px rgba(0,0,0,0.12), 
+              0 4px 4px rgba(0,0,0,0.12), 
+              0 8px 8px rgba(0,0,0,0.12),
+              0 16px 16px rgba(0,0,0,0.12);
+        }
+
+        #score {
+            display: none;
+            place-content: center;
+            height: 100%;
+        }
+
+        .padded-cell {
+            padding: 8px 0;
+            display: grid;
+            place-content: center;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/styles/default.min.css">
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <div id="page">
+        <button id="start">Start!</button>
+    </div>
+    <div id="game">
+        <h1 id="questionContent"></h1>
+        <div class="grid">
+            <pre>
+                <code id="html">
+                </code>
+            </pre>
+            <pre>
+                <code id="css"></code>
+            </pre>
+        </div>
+        
+        <form class="grid" name="form">
+            <div class="answer">
+                <iframe id ="A" class="center answer-button">A</iframe>
+                <input type="radio" name="answer" data-answer="A"> 
+            </div>
+            <div class="answer">
+                <iframe id ="B"  class="center answer-button">B</iframe>
+                <input type="radio" name="answer" data-answer="B"> 
+            </div>
+            <div class="answer">
+                <iframe id ="C"  class="center answer-button">C</iframe>
+                <input type="radio" name="answer" data-answer="C"> 
+            </div>
+            <div class="answer">
+                <iframe id ="D" class="center answer-button">D</iframe>
+                <input type="radio" name="answer" data-answer="D"> 
+            </div>
+        </form>
+    </div>
+    <div id="score">
+
+    </div>
+    <div id="buttons">
+        <button data-direction="decr">Previous</button>
+        <button data-direction="incr">Next</button>
+    </div>
+    <script>
+        const state = {
+            currentQuestionIndex: 0,
+            answers: {}
+        }
+        const questionBank = [
+            {question: 'The following HTML and CSS creates what effect?', 
+            html: `
+            <div id="page">
+                <div class="square blue"></div>
+                <div class="square positioned red overlay"></div>
+            </div>
+            `
+            , css: `
+                .blue-square {
+                    width: 64px; 
+                    aspect-ratio: 1;
+                    margin: 16px; 
+                    background-color: blue;
+                    z-index: 5;
+                }
+
+                .red-square {
+                    width: 64px; 
+                    aspect-ratio: 1;
+                    margin: 16px; 
+                    background-color: red;
+                    position: relative;
+                    z-index: 4;
+                }
+            `, answerChoices: {
+                A: './answers/question-0/A.html', 
+                B: './answers/question-0/B.html', 
+                C: './answers/question-0/C.html', 
+                D: './answers/question-0/D.html'
+            }, correctChoice: 'A'},
+            {question: 'For each of our 3 elements — main, header, and button — which layout mode is being used to render it?', html: `
+                <body>
+                    <main class="wrapper">
+                        <header>Hello World</header>
+                        <button class="help-btn">Help</button>
+                    </main>
+                </body>
+
+            `, css: `
+                .wrapper {
+                    display: grid;
+                }
+                    header {
+                    display: inline;
+                }
+                .help-btn {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                }
+            `, answerChoices: {
+                    A: './answers/question-1/A.html', 
+                    B: './answers/question-1/B.html', 
+                    C: './answers/question-1/C.html', 
+                    D: './answers/question-1/D.html'
+                }, correctChoice: 'C'},
+            {question: 'The following HTML and CSS creates what effect?', html: `
+                <div class="wide"></div>
+                <div class="flexbox">
+                    <div class="wide"></div>
+                </div>
+            `, css:`
+            .wide {
+                margin: 16px;
+                border: 1px solid black;
+                width: 2200px;
+                height: 32px;
+            }
+            .flexbox {display:flex;}
+            `, answerChoices: {
+                A: './answers/question-2/A.html', 
+                B: './answers/question-2/B.html', 
+                C: './answers/question-2/C.html', 
+                D: './answers/question-2/D.html',
+            }, correctChoice: 'A'},
+            {
+                question: 'The following HTML and CSS creates what effect?', 
+                html: `
+                <img class="aspect-ratio-1-2 margin-center-align" alt="Cael Sanderson" src="">
+                <p class="fit-content margin-center-align">Cael Sanderson</p>
+                `, 
+                css: `
+                .margin-center-align {
+                    margin-left: auto;
+                    margin-right: auto;
+                } 
+                .aspect-ratio-1-2 {
+                    aspect-ratio: 1/2;
+                    height: 200px;
+                }
+                .fit-content: {
+                    width: min-content;
+                }
+
+            `, answerChoices: {
+                A: './answers/question-3/A.html', 
+                B: './answers/question-3/B.html', 
+                C: './answers/question-3/C.html', 
+                D: './answers/question-3/D.html',
+            }, correctChoice: 'A'},
+            {
+                question: 'How much space is between the border box of the red square and the border box of the blue square?', 
+                html: `
+                    <div class="blue-square margin-bottom-8"></div>
+                    <div class="margin-y-16">
+                        <div class="red-square margin-top-32"></div>
+                    </div>
+                `, 
+                css: `
+                    .blue-square {
+                        width: 64px;
+                        aspect-ratio: 1;
+                        background-color: blue;
+                    }
+                    .red-square {
+                        width: 64px;
+                        aspect-ratio: 1;
+                        background-color: red;
+                    }
+                    .margin-y-16 { margin: 16px 0;}
+                    .margin-bottom-8 { margin-bottom: 8px;}
+                    .margin-top-32 {  margin-top: 32px;}
+                `, 
+                answerChoices: {
+                    A: './answers/question-4/A.html', 
+                    B: './answers/question-4/B.html', 
+                    C: './answers/question-4/C.html', 
+                    D: './answers/question-4/D.html',
+                }, 
+                correctChoice: 'A'
+            },
+            {
+                question: 'How much space is between the border box of the red square and the border box of the blue square?', 
+                html: `
+                    <div class="blue-square margin-bottom-8"></div>
+                    <div class="margin-y-16 padding-10">
+                        <div class="red-square margin-top-32"></div>
+                    </div>
+                ]`, 
+                css: `
+                    .blue-square {
+                        width: 64px;
+                        aspect-ratio: 1;
+                        background-color: blue;
+                    }
+                    .red-square {
+                        width: 64px;
+                        aspect-ratio: 1;
+                        background-color: red;
+                    }
+                    .margin-y-16 { margin: 16px 0;}
+                    .margin-bottom-8 { margin-bottom: 8px;}
+                    .margin-top-32 {  margin-top: 32px;}
+                    .padding-10 {padding: 10px;}
+                `, answerChoices: {
+                    A: './answers/question-5/A.html', 
+                    B: './answers/question-5/B.html', 
+                    C: './answers/question-5/C.html', 
+                    D: './answers/question-5/D.html',
+                }, correctChoice: 'B'},
+            {question: 'Does adding the absolute class to #positionedBlock change its position?', html: `
+            <div class="containing-block">
+                <div id="positionedBlock" class="red-square absolute left-100"></div>
+                <div class="square red positioned left-100"></div>
+            </div>
+            `, css: `
+            .blue-square {
+                width: 64px;
+                aspect-ratio: 1;
+                background-color: blue;
+            }
+            .red-square {
+                width: 64px;
+                aspect-ratio: 1;
+                background-color: red;
+            }
+            .containing-block {
+                padding-left: 100px;
+                position: relative;
+                z-index: 1;
+            }
+            .absolute {position: absolute;}
+            .left-100 {left: 100px;}
+
+            `, answerChoices: {
+                A: './answers/question-6/A.html', 
+                B: './answers/question-6/B.html', 
+                C: './answers/question-6/C.html', 
+                D: './answers/question-6/D.html',
+            }, correctChoice: 'C'},
+            {question: 'What is produced by this HTML and CSS?', html: `
+            <div class=”grid column-24px-1fr”>
+                <aside class=”width-24”></aside>
+                <table class=”overflow-auto”></table>
+            <div>
+            `, css: `
+            .grid {
+                display: grid;
+            }
+            .column-24px-1fr {
+                grid-template-columns: 24px 1fr 
+            }
+            .aside{
+                background-color: black;
+            }
+            .overflow-auto {
+                overflow: auto;
+            }
+            `, answerChoices: {
+                A: './answers/question-7/A.html', 
+                B: './answers/question-7/B.html', 
+                C: './answers/question-7/C.html', 
+                D: './answers/question-7/D.html',
+            }, correctChoice: 'C'},
+            {question: 'What effect is produced by this CSS and HTML?', html: `
+            <div class="3-col-grid relative">
+                <div class="square-blue"></div>
+                <div class="square-red absolute left-16"></div>
+                <div class="square-red relative left-16"></div>
+                <div class="square-blue"></div>
+            </div>
+
+            `, css: `
+            .square-blue{
+                width: 16px;
+                aspect-ratio: 1;
+                background-color: blue
+            }
+            .square-red{
+                width: 16px;
+                aspect-ratio: 1;
+                background-color: red;
+            }
+            .left-16 {
+                left: 16px;
+            }
+            .absolute {
+                position: absolute;
+            }
+            .relative {
+                position: relative;
+            }
+            .3-col-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            `, answerChoices: {
+                A: './answers/question-8/A.html', 
+                B: './answers/question-8/B.html', 
+                C: './answers/question-8/C.html', 
+                D: './answers/question-8/D.html',
+            }, correctChoice: 'A'},
+            {question: 'What happens when scrolling the following HTML and CSS?', html: `
+            <nav class="z-index-1 navbar"></nav>
+            <div class="page-1 relative z-index-1 flexbox">
+                <div class="card card-1"></div>
+                <div class="card card-2"></div>
+                <div class="card card-3"></div>
+            </div>
+            `, css: `
+            .navbar {
+                height: 10%;
+                z-index: 2;
+                background-color: black;
+                display: sticky;
+                top:0;
+            }
+            .card-1 {
+                z-index:1;
+            }
+            .card-2 {
+                z-index:3;
+            }
+            .card-3 {
+                z-index:1;
+            }
+            .card {
+                width: 200px;
+                aspect-ratio: 2/3;
+                border-radius: 8px;
+                border: 1px solid black;
+                background-color: white;
+            }
+            .page-1 {
+                display: flex;
+                justify-content: center;
+                align-content: baseline;
+            }
+            `, answerChoices: {
+                A: './answers/question-9/A.html', 
+                B: './answers/question-9/B.html', 
+                C: './answers/question-9/C.html', 
+                D: './answers/question-9/D.html',
+            }, correctChoice: 'A'},
+        ]
+
+        const syncQuestion = ({question, answerChoices, css, html}) => {
+            document.getElementById('questionContent').innerText = question;
+            document.getElementById('css').innerText = css;
+            document.getElementById('html').innerText = html;
+            Object.keys(answerChoices).forEach(char => document.getElementById(char).src = answerChoices[char]);
+        }
+        
+        const startGame = () => {
+            document.getElementById('page').style.display = 'none';
+            document.getElementById('buttons').style.display = 'flex';
+            document.querySelector('[data-direction="decr"]').disabled = true;
+            const {currentQuestionIndex} = state;
+            const currentQuestion = questionBank[currentQuestionIndex];
+            syncQuestion(currentQuestion);
+            document.getElementById('game').style.display = 'block';
+        }
+
+        document.querySelector('#start').addEventListener('click', startGame)
+
+        const syncAnswerAndRadioButtons = () => {
+            document.form.answer.forEach(ele => {
+                        if (state.answers[state.currentQuestionIndex] === ele.dataset.answer) ele.checked = true;
+                        else ele.checked = false;
+                    })
+        } 
+
+        Array.from(document.querySelectorAll('[data-direction]')).forEach(button => {
+            button.addEventListener('click', (e) => {
+                if(state.currentQuestionIndex === 9) {
+                    document.getElementById('game').style.display = 'none';
+                    document.getElementById('score').style.display = 'grid';
+                    document.getElementById('buttons').style.display = 'none';
+                    // build game over UI and add to DOM
+                    const reportCard = document.createElement('div');
+
+                    reportCard.id = 'reportCard';
+                    reportCard.innerHTML = `
+                        ${questionBank.map(i => i.correctChoice).map((ans, i) =>
+                            `<div class="padded-cell">${i +1}</div>
+                            <div class="padded-cell">${
+                                ans === state.answers[i] ? 
+                                `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="green" d="m10.6 13.8l-2.15-2.15q-.275-.275-.7-.275t-.7.275q-.275.275-.275.7t.275.7L9.9 15.9q.3.3.7.3t.7-.3l5.65-5.65q.275-.275.275-.7t-.275-.7q-.275-.275-.7-.275t-.7.275L10.6 13.8ZM12 22q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Z"/></svg>`
+                                : `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="red" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2zm4.3 14.3a.996.996 0 0 1-1.41 0L12 13.41L9.11 16.3a.996.996 0 1 1-1.41-1.41L10.59 12L7.7 9.11A.996.996 0 1 1 9.11 7.7L12 10.59l2.89-2.89a.996.996 0 1 1 1.41 1.41L13.41 12l2.89 2.89c.38.38.38 1.02 0 1.41z"/></svg>`
+                            }</div>`
+                        ).join('')}
+                    `
+                    document.getElementById('score').appendChild(reportCard)
+                    return;
+                }
+                const handleIncr = () => {
+                    state.currentQuestionIndex++
+                    document.querySelector('[data-direction="decr"]').disabled = false;
+                    syncAnswerAndRadioButtons();
+                }
+                const handleDecrement = () => {
+                    state.currentQuestionIndex--;
+                    if(state.currentQuestionIndex === 0) document.querySelector('[data-direction="decr"]').disabled = true;
+                    syncAnswerAndRadioButtons();
+                }
+                e.target.dataset.direction === 'incr' ?  handleIncr() : handleDecrement();
+                syncQuestion(questionBank[state.currentQuestionIndex])
+            })
+        })
+
+        document.form.answer.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const {answer} = e.target.dataset;
+                state.answers[state.currentQuestionIndex] = answer;
+                console.log(state.answers)
+            })
+        })
+
+    </script>
+    
+</body>
+</html>

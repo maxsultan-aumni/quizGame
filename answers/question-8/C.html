@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <style>
+            .square-blue{
+                width: 16px;
+                aspect-ratio: 1;
+                background-color: blue
+            }
+            .square-red{
+                width: 16px;
+                aspect-ratio: 1;
+                background-color: red;
+            }
+            .left-16 {
+                left: 16px;
+            }
+            .absolute {
+                position: absolute;
+            }
+            .relative {
+                position: relative;
+            }
+            .grid-3-col {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+        </style>
+    </head>    
+    <body>
+        <div class="grid-3-col relative">
+            <div class="square-blue"></div>
+            <div class="square-red absolute left-16"></div>
+            <div class="square-red absolute left-16"></div>
+            <div class="square-blue"></div>
+        </div>
+    </body>
+</html>
