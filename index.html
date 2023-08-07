@@ -117,6 +117,11 @@
             place-content: center;
         }
 
+        #preview {
+            border: 1px solid black;
+            position: relative;
+        }
+
     </style>
     <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/styles/default.min.css">
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/highlight.min.js"></script>
@@ -136,8 +141,10 @@
             <pre>
                 <code id="css"></code>
             </pre>
+            <div id="preview">
+
+            </div>
         </div>
-        
         <form class="grid" name="form">
             <div class="answer">
                 <iframe id ="A" class="center answer-button">A</iframe>
@@ -170,36 +177,32 @@
             answers: {}
         }
         const questionBank = [
-            {question: 'The following HTML and CSS creates what effect?', 
+            {question: 'Adding "z-index: 5" to the blue-square class, has what effect?',
             html: `
-            <div id="page">
-                <div class="square blue"></div>
-                <div class="square positioned red overlay"></div>
-            </div>
+                <div class="blue-square"></div>
+                <div class="red-square"></div>
             `
             , css: `
                 .blue-square {
                     width: 64px; 
                     aspect-ratio: 1;
-                    margin: 16px; 
                     background-color: blue;
-                    z-index: 5;
                 }
 
                 .red-square {
                     width: 64px; 
                     aspect-ratio: 1;
-                    margin: 16px; 
                     background-color: red;
                     position: relative;
                     z-index: 4;
+                    bottom: 48px
                 }
             `, answerChoices: {
                 A: './answers/question-0/A.html', 
                 B: './answers/question-0/B.html', 
                 C: './answers/question-0/C.html', 
                 D: './answers/question-0/D.html'
-            }, correctChoice: 'A'},
+            }, correctChoice: 'D'},
             {question: 'For each of our 3 elements — main, header, and button — which layout mode is being used to render it?', html: `
                 <body>
                     <main class="wrapper">
@@ -226,9 +229,9 @@
                     C: './answers/question-1/C.html', 
                     D: './answers/question-1/D.html'
                 }, correctChoice: 'C'},
-            {question: 'The following HTML and CSS creates what effect?', html: `
+            {question: 'Adding "display: flex" to #add-flex-to-me has what effect on the width of its child element?', html: `
                 <div class="wide"></div>
-                <div class="flexbox">
+                <div id="add-flex-to-me">
                     <div class="wide"></div>
                 </div>
             `, css:`
@@ -238,7 +241,6 @@
                 width: 2200px;
                 height: 32px;
             }
-            .flexbox {display:flex;}
             `, answerChoices: {
                 A: './answers/question-2/A.html', 
                 B: './answers/question-2/B.html', 
@@ -246,10 +248,10 @@
                 D: './answers/question-2/D.html',
             }, correctChoice: 'A'},
             {
-                question: 'The following HTML and CSS creates what effect?', 
+                question: 'How will adding the margin-center-align class to both elements effect each elements position', 
                 html: `
-                <img class="aspect-ratio-1-2 margin-center-align" alt="Cael Sanderson" src="">
-                <p class="fit-content margin-center-align">Cael Sanderson</p>
+                <img class="aspect-ratio-1-2" alt="Cael Sanderson" src="">
+                <p class="fit-content">Cael Sanderson</p>
                 `, 
                 css: `
                 .margin-center-align {
@@ -271,9 +273,9 @@
                 D: './answers/question-3/D.html',
             }, correctChoice: 'A'},
             {
-                question: 'How much space is between the red square and the blue square?', 
+                question: 'How does adding margin-bottom-8 to .blue-square affect the space between the squares?', 
                 html: `
-                    <div class="blue-square margin-bottom-8"></div>
+                    <div class="blue-square"></div>
                     <div class="margin-y-16">
                         <div class="red-square margin-top-32"></div>
                     </div>
@@ -302,10 +304,10 @@
                 correctChoice: 'A'
             },
             {
-                question: 'How much space is between the red square and the blue square?',
+                question: 'Adding .padding-top-10 to #give-me-padding has what effect on the space between the squares',
                 html: `
                     <div class="blue-square margin-bottom-8"></div>
-                    <div class="margin-y-16 padding-10">
+                    <div id="give-me-padding" class="margin-y-16">
                         <div class="red-square margin-top-32"></div>
                     </div>
                 `, 
@@ -323,7 +325,7 @@
                     .margin-y-16 { margin: 16px 0;}
                     .margin-bottom-8 { margin-bottom: 8px;}
                     .margin-top-32 {  margin-top: 32px;}
-                    .padding-10 {padding: 10px;}
+                    .padding-top-10 {padding: 10px;}
                 `, answerChoices: {
                     A: './answers/question-5/A.html', 
                     B: './answers/question-5/B.html', 
@@ -335,14 +337,8 @@
                 html: `
                     <div class="containing-block">
                         <div id="positionedBlock" class="red-square left-100"></div>
-                        <div class="square red positioned left-100"></div>
                     </div>
                 `, css: `
-                    .blue-square {
-                        width: 64px;
-                        aspect-ratio: 1;
-                        background-color: blue;
-                    }
                     .red-square {
                         width: 64px;
                         aspect-ratio: 1;
@@ -386,16 +382,16 @@
                 C: './answers/question-7/C.html', 
                 D: './answers/question-7/D.html',
             }, correctChoice: 'C'},
-            {question: 'What effect is produced by this CSS and HTML?', html: `
-            <div class="3-col-grid relative">
+            {question: 'If i add .absolute to #one and .relative to #two what column does #three end up in?', html: `
+            <div class="grid-3-col relative">
                 <div class="square-blue"></div>
-                <div class="square-red absolute left-16"></div>
-                <div class="square-red relative left-16"></div>
-                <div class="square-blue"></div>
+                <div id="one" class="square-red left-16"></div>
+                <div id="two" class="square-red left-16"></div>
+                <div id="three" class="square-blue"></div>
             </div>
 
             `, css: `
-            .square-blue{
+            .square-blue {
                 width: 16px;
                 aspect-ratio: 1;
                 background-color: blue
@@ -411,10 +407,7 @@
             .absolute {
                 position: absolute;
             }
-            .relative {
-                position: relative;
-            }
-            .3-col-grid {
+            .grid-3-col {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
@@ -424,10 +417,10 @@
                 B: './answers/question-8/B.html', 
                 C: './answers/question-8/C.html', 
                 D: './answers/question-8/D.html',
-            }, correctChoice: 'A'},
-            {question: 'What happens when scrolling the following HTML and CSS?', html: `
+            }, correctChoice: 'C'},
+            {question: 'Will the cards appear on top of the navbar while scrolling?', html: `
             <nav class="z-index-1 navbar"></nav>
-            <div class="page-1 relative z-index-1 flexbox">
+            <div class="page-1 relative">
                 <div class="card card-1"></div>
                 <div class="card card-2"></div>
                 <div class="card card-3"></div>
@@ -437,17 +430,17 @@
                 height: 10%;
                 z-index: 2;
                 background-color: black;
-                display: sticky;
+                position: sticky;
                 top:0;
             }
             .card-1 {
-                z-index:1;
-            }
-            .card-2 {
                 z-index:3;
             }
+            .card-2 {
+                z-index:4;
+            }
             .card-3 {
-                z-index:1;
+                z-index:3;
             }
             .card {
                 width: 200px;
@@ -460,11 +453,13 @@
                 display: flex;
                 justify-content: center;
                 align-content: baseline;
+                position: relative;
+                z-index:1;
             }
             `, answerChoices: {
-                A: './answers/question-9/A.html', 
-                B: './answers/question-9/B.html', 
-                C: './answers/question-9/C.html', 
+                A: './answers/question-9/A.html',
+                B: './answers/question-9/B.html',
+                C: './answers/question-9/C.html',
                 D: './answers/question-9/D.html',
             }, correctChoice: 'A'},
         ]
@@ -473,6 +468,14 @@
             document.getElementById('questionContent').innerText = question;
             document.getElementById('css').innerText = css;
             document.getElementById('html').innerText = html;
+            document.getElementById('preview').innerHTML = `
+            <html>
+                <head>
+                    <style>${css}</style>
+                </head>
+                <body>${html}</body>
+            </html>
+            `
             Object.keys(answerChoices).forEach(char => document.getElementById(char).src = answerChoices[char]);
         }
         
@@ -497,11 +500,12 @@
 
         Array.from(document.querySelectorAll('[data-direction]')).forEach(button => {
             button.addEventListener('click', (e) => {
-                if(state.currentQuestionIndex === 9) {
+                
+                const handleIncr = () => {
+                    if(state.currentQuestionIndex === 9) {
                     document.getElementById('game').style.display = 'none';
                     document.getElementById('score').style.display = 'grid';
                     document.getElementById('buttons').style.display = 'none';
-                    // build game over UI and add to DOM
                     const reportCard = document.createElement('div');
 
                     reportCard.id = 'reportCard';
@@ -515,10 +519,9 @@
                             }</div>`
                         ).join('')}
                     `
-                    document.getElementById('score').appendChild(reportCard)
+                    document.getElementById('score').appendChild(reportCard);
                     return;
                 }
-                const handleIncr = () => {
                     state.currentQuestionIndex++
                     document.querySelector('[data-direction="decr"]').disabled = false;
                     syncAnswerAndRadioButtons();
