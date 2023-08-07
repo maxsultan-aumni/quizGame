@@ -308,7 +308,7 @@
                     <div class="margin-y-16 padding-10">
                         <div class="red-square margin-top-32"></div>
                     </div>
-                ]`, 
+                `, 
                 css: `
                     .blue-square {
                         width: 64px;
@@ -332,7 +332,7 @@
                 }, correctChoice: 'B'},
             {question: 'Does adding the absolute class to #positionedBlock change its position?', html: `
             <div class="containing-block">
-                <div id="positionedBlock" class="red-square absolute left-100"></div>
+                <div id="positionedBlock" class="red-square left-100"></div>
                 <div class="square red positioned left-100"></div>
             </div>
             `, css: `
@@ -377,6 +377,16 @@
             }
             .overflow-auto {
                 overflow: auto;
+            }
+            table {
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            th, td {
+                padding: 8px;
+                white-space: nowrap;
             }
             `, answerChoices: {
                 A: './answers/question-7/A.html', 
